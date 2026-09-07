@@ -36,4 +36,4 @@ jobs:
           cache-dependency-path: backend/pom.xml
 
       - name: Verify backend
-        run: ./mvnw --batch-mode --no-transfer-progress verify
+        run: bash mvnw --batch-mode --no-transfer-progress verify
