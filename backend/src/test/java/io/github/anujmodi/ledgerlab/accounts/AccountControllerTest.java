@@ -65,7 +65,11 @@ class AccountControllerTest {
                 TransactionType.DEBIT,
                 LocalDate.of(2026, 8, 14)
         );
-        given(accountService.getTransactions(accountId, TransactionType.DEBIT))
+        given(accountService.getTransactions(
+                accountId,
+                TransactionType.DEBIT,
+                TransactionSortOrder.DESC
+        ))
                 .willReturn(List.of(transaction));
 
         mockMvc.perform(get("/api/accounts/{accountId}/transactions", accountId)
@@ -77,7 +81,24 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$[0].type").value("DEBIT"))
                 .andExpect(jsonPath("$[0].bookedOn").value("2026-08-14"));
 
-        verify(accountService).getTransactions(accountId, TransactionType.DEBIT);
+        verify(accountService).getTransactions(
+                accountId,
+                TransactionType.DEBIT,
+                TransactionSortOrder.DESC
+        );
+    }
+
+    @Test
+    void requestsAscendingTransactionOrder() throws Exception {
+        var accountId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        given(accountService.getTransactions(accountId, null, TransactionSortOrder.ASC))
+                .willReturn(List.of());
+
+        mockMvc.perform(get("/api/accounts/{accountId}/transactions", accountId)
+                        .queryParam("order", "ASC"))
+                .andExpect(status().isOk());
+
+        verify(accountService).getTransactions(accountId, null, TransactionSortOrder.ASC);
     }
 
     @Test

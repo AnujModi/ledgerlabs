@@ -37,10 +37,18 @@ public class AccountService {
         return new AccountSummary(id, "Sample Account", new BigDecimal("1000.00"), "USD");
     }
 
-    public List<AccountTransaction> getTransactions(UUID accountId, TransactionType type) {
-        return TRANSACTIONS.stream()
+    public List<AccountTransaction> getTransactions(
+            UUID accountId,
+            TransactionType type,
+            TransactionSortOrder order
+    ) {
+        var transactions = TRANSACTIONS.stream()
                 .filter(transaction -> type == null || transaction.type() == type)
                 .toList();
+
+        return order == TransactionSortOrder.ASC
+                ? transactions.reversed()
+                : transactions;
     }
 
     public AccountTransaction getTransaction(UUID accountId, UUID transactionId) {

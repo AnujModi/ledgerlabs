@@ -29,11 +29,29 @@ class AccountServiceTest {
     void filtersTransactionsByTypeUsingStreamPipeline() {
         var accountId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
-        var transactions = accountService.getTransactions(accountId, TransactionType.DEBIT);
+        var transactions = accountService.getTransactions(
+                accountId,
+                TransactionType.DEBIT,
+                TransactionSortOrder.DESC
+        );
 
         assertEquals(2, transactions.size());
         assertTrue(transactions.stream()
                 .allMatch(transaction -> transaction.type() == TransactionType.DEBIT));
+    }
+
+    @Test
+    void returnsTransactionsOldestFirstWhenAscendingOrderIsRequested() {
+        var accountId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+        var transactions = accountService.getTransactions(
+                accountId,
+                null,
+                TransactionSortOrder.ASC
+        );
+
+        assertEquals(LocalDate.of(2026, 8, 13), transactions.getFirst().bookedOn());
+        assertEquals(LocalDate.of(2026, 8, 15), transactions.getLast().bookedOn());
     }
 
     @Test

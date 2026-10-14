@@ -26,9 +26,10 @@ public class AccountController {
     @GetMapping("/{accountId}/transactions")
     public List<AccountTransaction> getTransactions(
             @PathVariable UUID accountId,
-            @RequestParam(required = false) TransactionType type
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(defaultValue = "DESC") TransactionSortOrder order
     ) {
-        return accountService.getTransactions(accountId, type);
+        return accountService.getTransactions(accountId, type, order);
     }
 
     @GetMapping("/{accountId}/transactions/{transactionId}")
