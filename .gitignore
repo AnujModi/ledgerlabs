@@ -3,3 +3,5 @@
 *.iml
 **/target/
 backend/ledgerlab-api.zip
+frontend/node_modules/
+frontend/dist/
