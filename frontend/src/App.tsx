@@ -19,6 +19,46 @@ type Transaction = {
 type ActivityFilter = 'ALL' | Transaction['type']
 
 const ACCOUNT_ID = '11111111-1111-1111-1111-111111111111'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+const USE_DEMO_DATA = import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL
+
+const DEMO_SUMMARY: AccountSummary = {
+  id: ACCOUNT_ID,
+  displayName: 'Everyday account',
+  availableBalance: '12480.68',
+  currency: 'CAD',
+}
+
+const DEMO_TRANSACTIONS: Transaction[] = [
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    description: 'Payroll deposit',
+    amount: '2500.00',
+    type: 'CREDIT',
+    bookedOn: '2026-10-15',
+  },
+  {
+    id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    description: 'Grocery market',
+    amount: '84.19',
+    type: 'DEBIT',
+    bookedOn: '2026-10-14',
+  },
+  {
+    id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    description: 'Electricity bill',
+    amount: '126.45',
+    type: 'DEBIT',
+    bookedOn: '2026-10-12',
+  },
+  {
+    id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    description: 'Coffee shop',
+    amount: '6.80',
+    type: 'DEBIT',
+    bookedOn: '2026-10-11',
+  },
+]
 
 const money = (amount: string | number, currency: string) =>
   new Intl.NumberFormat('en-CA', {
@@ -36,19 +76,25 @@ const shortDate = (date: string) =>
   }).format(new Date(`${date}T00:00:00Z`))
 
 function App() {
-  const [summary, setSummary] = useState<AccountSummary | null>(null)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [summary, setSummary] = useState<AccountSummary | null>(() =>
+    USE_DEMO_DATA ? DEMO_SUMMARY : null,
+  )
+  const [transactions, setTransactions] = useState<Transaction[]>(() =>
+    USE_DEMO_DATA ? DEMO_TRANSACTIONS : [],
+  )
   const [filter, setFilter] = useState<ActivityFilter>('ALL')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (USE_DEMO_DATA) return
+
     const controller = new AbortController()
 
     async function loadDashboard() {
       try {
         const [summaryResponse, transactionsResponse] = await Promise.all([
-          fetch(`/api/accounts/${ACCOUNT_ID}/summary`, { signal: controller.signal }),
-          fetch(`/api/accounts/${ACCOUNT_ID}/transactions`, { signal: controller.signal }),
+          fetch(`${API_BASE_URL}/api/accounts/${ACCOUNT_ID}/summary`, { signal: controller.signal }),
+          fetch(`${API_BASE_URL}/api/accounts/${ACCOUNT_ID}/transactions`, { signal: controller.signal }),
         ])
 
         if (!summaryResponse.ok || !transactionsResponse.ok) {
